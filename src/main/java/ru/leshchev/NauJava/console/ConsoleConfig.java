@@ -21,22 +21,17 @@ public class ConsoleConfig {
         return args -> {
             try (Scanner scanner = new Scanner(System.in)) {
                 System.out.println("Enter command. Type 'help' to see available commands or 'exit' to quit.");
-
                 while (true) {
                     System.out.print("> ");
-
                     if (!scanner.hasNextLine()) {
                         break;
                     }
-
                     String input = scanner.nextLine();
-
-                    if ("exit".equalsIgnoreCase(input.trim())) {
+                    if ("exit".equalsIgnoreCase(input.strip())) {
                         System.out.println("Exiting application...");
                         applicationContext.close();
                         break;
                     }
-
                     commandProcessor.processCommand(input);
                 }
             }

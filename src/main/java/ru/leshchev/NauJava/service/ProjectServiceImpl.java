@@ -1,59 +1,56 @@
 package ru.leshchev.NauJava.service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.leshchev.NauJava.config.AppConfig;
+import org.springframework.transaction.annotation.Transactional;
 import ru.leshchev.NauJava.dal.entity.Project;
-import ru.leshchev.NauJava.dal.repository.CrudRepository;
+import ru.leshchev.NauJava.dal.repository.ProjectRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProjectServiceImpl implements ProjectService {
-    private final CrudRepository<Project, Long> projectRepository;
-    private final AppConfig appConfig;
-
-    @PostConstruct
-    public void printApplicationInfo() {
-        System.out.printf("Application: %s, version: %s%n", appConfig.getAppName(), appConfig.getAppVersion());
-    }
+    private final ProjectRepository projectRepository;
 
     @Override
+    @Transactional
     public Project createProject(String name) {
-        Project project = new Project();
-        project.setName(name);
-        project.setParticipants(new ArrayList<>());
-        projectRepository.create(project);
-        return project;
+        return projectRepository.save(new Project().setName(requireName(name)));
     }
 
     @Override
     public Project findById(Long id) {
-        return projectRepository.read(id);
+        return projectRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Project> findAll() {
-        return projectRepository.readAll();
+        return projectRepository.findAllByOrderByIdAsc();
     }
 
     @Override
+    @Transactional
     public void updateProjectName(Long id, String newName) {
-        Project project = projectRepository.read(id);
-
-        if (project == null) {
-            throw new IllegalArgumentException("Project with id " + id + " not found");
-        }
-
-        project.setName(newName);
-        projectRepository.update(project);
+        requireProject(id).setName(requireName(newName));
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
-        projectRepository.delete(id);
+        projectRepository.delete(requireProject(id));
+    }
+
+    private Project requireProject(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Project with id " + id + " not found"));
+    }
+
+    private String requireName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Project name must not be blank");
+        }
+        return name.strip();
     }
 }
