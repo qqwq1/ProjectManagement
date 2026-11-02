@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Проекты — NauJava</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem auto; padding: 0 1rem; max-width: 1100px; color: #243047; }
+        form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; margin: 1.5rem 0; }
+        label { display: grid; gap: .4rem; }
+        input, select, button { font: inherit; padding: .5rem; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1.5rem; }
+        th, td { padding: .75rem; border: 1px solid #ccd3df; text-align: left; overflow-wrap: anywhere; }
+        th { background: #edf1f7; }
+        nav { display: flex; gap: 1.5rem; }
+    </style>
+</head>
+<body>
+<h1>Проекты</h1>
+<nav><a th:href="@{/projects}">Все проекты</a><a th:href="@{/swagger-ui/index.html}">Документация API</a></nav>
+<form method="get" th:action="@{/projects/findByNameAndStatus}">
+    <label>Название <input name="name" th:value="${name}" required maxlength="200"></label>
+    <label>Статус <select name="status" required>
+        <option th:each="item : ${T(ru.leshchev.NauJava.dal.entity.ProjectStatus).values()}"
+                th:value="${item}" th:text="${item}" th:selected="${item == status}"></option>
+    </select></label>
+    <button type="submit">Найти по названию и статусу</button>
+</form>
+<form method="get" th:action="@{/projects/findByParticipantEmail}">
+    <label>Email участника <input name="email" type="email" th:value="${email}" required></label>
+    <button type="submit">Найти по участнику</button>
+</form>
+<table>
+    <caption>Список проектов</caption>
+    <thead><tr><th>ID</th><th>Название</th><th>Описание</th><th>Статус</th><th>Дата создания</th></tr></thead>
+    <tbody>
+    <tr th:each="project : ${projects}">
+        <td th:text="${project.id}"></td><td th:text="${project.name}"></td>
+        <td th:text="${project.description}"></td><td th:text="${project.status}"></td>
+        <td th:text="${project.createdAt}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(projects)}"><td colspan="5">Проекты не найдены</td></tr>
+    </tbody>
+</table>
+</body>
+</html>
