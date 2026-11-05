@@ -17,7 +17,11 @@
 </head>
 <body>
 <h1>Проекты</h1>
-<nav><a th:href="@{/projects}">Все проекты</a><a th:href="@{/swagger-ui/index.html}">Документация API</a></nav>
+<nav>
+    <a th:href="@{/projects}">Все проекты</a>
+    <a th:if="${isAdmin}" th:href="@{/swagger-ui/index.html}">Документация API</a>
+</nav>
+<form th:action="@{/logout}" method="post"><button type="submit">Выйти</button></form>
 <form method="get" th:action="@{/projects/findByNameAndStatus}">
     <label>Название <input name="name" th:value="${name}" required maxlength="200"></label>
     <label>Статус <select name="status" required>

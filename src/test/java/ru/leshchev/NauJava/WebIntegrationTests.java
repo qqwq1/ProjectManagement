@@ -2,8 +2,6 @@ package ru.leshchev.NauJava;
 
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -12,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.leshchev.NauJava.dal.entity.*;
@@ -30,7 +29,8 @@ class WebIntegrationTests {
     @Autowired ProjectParticipantRepository participants;
     @Autowired ProjectTaskRepository tasks;
     @Autowired TaskCommentRepository comments;
-    private final HttpClient client = HttpClient.newHttpClient();
+    @Autowired PasswordEncoder passwordEncoder;
+    private HttpTestClient client;
     private final ObjectMapper json = new ObjectMapper();
     private Long projectId;
     private Long userId;
@@ -38,6 +38,14 @@ class WebIntegrationTests {
     @BeforeEach
     void seed() {
         cleanDatabase();
+        users.save(new User().setUsername("web-admin").setPassword(passwordEncoder.encode("TestPassword1!"))
+                .setName("Admin").setLastName("Test").setEmail("web-admin@example.org").setRole("ADMIN"));
+        client = new HttpTestClient(port);
+        try {
+            assertThat(client.login("web-admin", "TestPassword1!").statusCode()).isEqualTo(302);
+        } catch (Exception exception) {
+            throw new AssertionError(exception);
+        }
         var project = projects.save(new Project().setName("Платформа <script>").setStatus(ProjectStatus.ACTIVE));
         projectId = project.getId();
         projects.save(new Project().setName("Другой").setStatus(ProjectStatus.COMPLETED));
@@ -208,11 +216,7 @@ class WebIntegrationTests {
     }
 
     private HttpResponse<String> request(String method, String path, String body) throws Exception {
-        var builder = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
-                .header("Accept", "application/json, text/html, */*");
-        if (body != null) builder.header("Content-Type", "application/json");
-        return client.send(builder.method(method, body == null ? HttpRequest.BodyPublishers.noBody()
-                : HttpRequest.BodyPublishers.ofString(body)).build(), HttpResponse.BodyHandlers.ofString());
+        return client.json(method, path, body);
     }
 
     private String encode(String value) {

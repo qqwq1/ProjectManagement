@@ -9,5 +9,7 @@ import java.util.Optional;
 
 @RepositoryRestResource(path = "users", collectionResourceRel = "users")
 public interface UserRepository extends CrudRepository<User, Long> {
+    Optional<User> findByUsername(@Param("username") String username);
+
     Optional<User> findByEmail(@Param("email") String email);
 }

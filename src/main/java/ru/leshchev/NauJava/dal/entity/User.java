@@ -1,5 +1,7 @@
 package ru.leshchev.NauJava.dal.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -44,7 +46,18 @@ public class User {
     @NotBlank
     @Size(max = 100)
     @Column(nullable = false, length = 100)
-    private String role = "MEMBER";
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String role = "USER";
+
+    @Size(max = 64)
+    @Column(unique = true, length = 64)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String username;
+
+    @JsonIgnore
+    @Size(max = 100)
+    @Column(length = 100)
+    private String password;
 
     @OneToMany(mappedBy = "user")
     private List<ProjectParticipant> participations = new ArrayList<>();

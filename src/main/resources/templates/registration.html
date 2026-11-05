@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Регистрация — NauJava</title>
+    <style>body { font-family: system-ui, sans-serif; margin: 3rem auto; padding: 0 1rem; max-width: 440px; color: #243047; }
+        form, label { display: grid; gap: .5rem; }
+        form { gap: 1rem; }
+        input, button { font: inherit; padding: .65rem; }
+        .error { color: #9b2424; }
+        .notice { color: #216032; }</style>
+</head>
+<body>
+<h1>Регистрация</h1>
+<form th:action="@{/registration}" th:object="${registrationForm}" method="post">
+    <div class="error" role="alert" th:if="${#fields.hasAnyErrors()}">
+        <p th:each="error : ${#fields.allErrors()}" th:text="${error}"></p>
+    </div>
+    <label for="username">Логин</label>
+    <input id="username" th:field="*{username}" autocomplete="username" maxlength="64" required>
+    <label for="password">Пароль</label>
+    <input id="password" type="password" name="password" autocomplete="new-password" maxlength="72" required>
+    <label for="name">Имя</label>
+    <input id="name" th:field="*{name}" autocomplete="given-name" maxlength="100" required>
+    <label for="lastName">Фамилия</label>
+    <input id="lastName" th:field="*{lastName}" autocomplete="family-name" maxlength="100" required>
+    <label for="email">Email</label>
+    <input id="email" type="email" th:field="*{email}" autocomplete="email" maxlength="320" required>
+    <button type="submit">Зарегистрироваться</button>
+</form>
+<p><a th:href="@{/login}">Войти</a></p>
+</body>
+</html>
