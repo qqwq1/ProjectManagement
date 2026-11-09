@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Вход — NauJava</title>
+    <style>body { font-family: system-ui, sans-serif; margin: 3rem auto; padding: 0 1rem; max-width: 440px; color: #243047; }
+        form, label { display: grid; gap: .5rem; }
+        form { gap: 1rem; }
+        input, button { font: inherit; padding: .65rem; }
+        .error { color: #9b2424; }
+        .notice { color: #216032; }</style>
+</head>
+<body>
+<h1>Вход</h1>
+<p class="error" role="alert" th:if="${param.error}">Неверный логин или пароль</p>
+<p class="notice" th:if="${param.registered}">Регистрация завершена. Войдите в систему.</p>
+<p class="notice" th:if="${param.logout}">Вы вышли из системы.</p>
+<form th:action="@{/login}" method="post">
+    <label for="username">Логин</label>
+    <input id="username" name="username" autocomplete="username" required autofocus>
+    <label for="password">Пароль</label>
+    <input id="password" type="password" name="password" autocomplete="current-password" required>
+    <button type="submit">Войти</button>
+</form>
+<p><a th:href="@{/registration}">Зарегистрироваться</a></p>
+</body>
+</html>
